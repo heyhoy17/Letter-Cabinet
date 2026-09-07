@@ -84,16 +84,105 @@
     z-index: 2;
   }
 
-  /* ---------- 화면: 보관함 (스텁) ---------- */
-  #screen-archive {
-    align-items: center;
-    justify-content: center;
-    background: #fafafa;
+  /* ---------- 화면: 보관함 ---------- */
+  #screen-archive { background: #ffffff; }
+  #screen-archive .archive-header {
+    padding: 64px 20px 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
   }
-  #screen-archive p { color: #999; font-size: 14px; font-weight: 500; }
+  #screen-archive .archive-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  #screen-archive .archive-empty {
+    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .archive-card {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #fafafa;
+    cursor: pointer;
+  }
+  .archive-card img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: #eee;
+  }
+  .archive-card .info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .archive-card .author { font-size: 14px; font-weight: 700; color: #000; }
+  .archive-card .date { font-size: 12px; font-weight: 500; color: #999; }
+  .archive-card .memo {
+    font-size: 12px;
+    font-weight: 400;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- 화면: 편지 상세보기 ---------- */
+  #screen-detail { background: #ffffff; }
+  #screen-detail .detail-photo-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #eee;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+  #screen-detail .detail-photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #screen-detail .detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 20px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  #screen-detail .detail-author {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+  }
+  #screen-detail .detail-date {
+    font-size: 13px;
+    font-weight: 500;
+    color: #999;
+  }
+  #screen-detail .detail-memo {
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    border-top: 1px solid #eee;
+    padding-top: 14px;
+  }
 
   /* ---------- 화면: 촬영본 미리보기 ---------- */
-  #screen-preview { background: #000; justify-content: space-between; }
+  #screen-preview { background: #ffffff; justify-content: space-between; }
   #screen-preview .preview-wrap,
   #screen-adjust .preview-wrap {
     flex: 1;
@@ -123,7 +212,7 @@
     font-weight: 500;
     font-size: 14px;
   }
-  .btn-retake { background: #ffffff; color: #000000; }
+  .btn-retake { background: #000000; color: #ffffff; }
   .btn-adjust-go { background: #000000; color: #ffffff; }
 
   /* ---------- 화면: 세부 조정 ---------- */
@@ -194,6 +283,7 @@
   }
   #screen-info .info-form {
     flex: 1;
+    overflow-y: auto;
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
@@ -212,6 +302,18 @@
     padding: 0 2px;
   }
   .field input:focus { outline: none; border-bottom-color: #000; }
+  .field textarea {
+    min-height: 90px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+    padding: 10px;
+    resize: none;
+  }
+  .field textarea:focus { outline: none; border-color: #000; }
   #screen-info .info-bottom {
     padding: 0 20px 32px;
     display: flex;
@@ -234,19 +336,33 @@
 
     <!-- 화면 1: 시작 -->
     <div id="screen-start" class="screen active">
-      <button class="btn btn-store" onclick="goTo('screen-archive')">보관하기</button>
+      <button class="btn btn-store" onclick="goTo('screen-archive'); renderArchive();">보관하기</button>
       <button class="btn btn-capture" onclick="openCamera()">촬영하기</button>
     </div>
 
     <!-- 화면: 보관함 -->
     <div id="screen-archive" class="screen">
       <div class="back" onclick="goTo('screen-start')">← 뒤로</div>
-      <p>보관함 (다음 단계에서 제작)</p>
+      <div class="archive-header">보관함</div>
+      <div id="archiveList" class="archive-list"></div>
+    </div>
+
+    <!-- 화면: 편지 상세보기 -->
+    <div id="screen-detail" class="screen">
+      <div class="back" onclick="goTo('screen-archive')">← 뒤로</div>
+      <div class="detail-photo-wrap">
+        <img id="detailPhoto" src="" alt="편지 상세 사진">
+      </div>
+      <div class="detail-body">
+        <div class="detail-author" id="detailAuthor"></div>
+        <div class="detail-date" id="detailDate"></div>
+        <div class="detail-memo" id="detailMemo"></div>
+      </div>
     </div>
 
     <!-- 화면: 촬영본 미리보기 -->
     <div id="screen-preview" class="screen">
-      <div class="back" style="color:#fff;" onclick="goTo('screen-start')">← 뒤로</div>
+      <div class="back" onclick="goTo('screen-start')">← 뒤로</div>
       <div class="preview-wrap">
         <canvas id="previewCanvas"></canvas>
       </div>
@@ -297,6 +413,10 @@
           <label>날짜</label>
           <input type="date" id="inputDate">
         </div>
+        <div class="field">
+          <label>메모</label>
+          <textarea id="inputMemo" placeholder="메모를 입력하세요"></textarea>
+        </div>
       </div>
       <div class="info-bottom">
         <button class="btn btn-save" onclick="storeLetter()">보관하기</button>
@@ -324,6 +444,81 @@
   let imgW = 0, imgH = 0;
   let isGrayscale = false;
 
+  const STORAGE_KEY = 'letterStorageApp_letters';
+
+  function loadLetters() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveLetters(letters) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(letters));
+    } catch (e) {
+      console.error('저장 실패', e);
+    }
+  }
+
+  function renderArchive() {
+    const letters = loadLetters();
+    const list = document.getElementById('archiveList');
+    list.innerHTML = '';
+
+    if (letters.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'archive-empty';
+      empty.textContent = '아직 보관된 편지가 없어요.';
+      list.appendChild(empty);
+      return;
+    }
+
+    letters.slice().reverse().forEach(letter => {
+      const card = document.createElement('div');
+      card.className = 'archive-card';
+
+      const img = document.createElement('img');
+      img.src = letter.photo;
+
+      const info = document.createElement('div');
+      info.className = 'info';
+
+      const author = document.createElement('div');
+      author.className = 'author';
+      author.textContent = letter.author || '글쓴이 미상';
+
+      const date = document.createElement('div');
+      date.className = 'date';
+      date.textContent = letter.date || '';
+
+      const memo = document.createElement('div');
+      memo.className = 'memo';
+      memo.textContent = letter.memo || '';
+
+      info.appendChild(author);
+      info.appendChild(date);
+      if (letter.memo) info.appendChild(memo);
+      card.appendChild(img);
+      card.appendChild(info);
+      card.addEventListener('click', () => showDetail(letter.id));
+      list.appendChild(card);
+    });
+  }
+
+  function showDetail(id) {
+    const letters = loadLetters();
+    const letter = letters.find(l => l.id === id);
+    if (!letter) return;
+    document.getElementById('detailPhoto').src = letter.photo;
+    document.getElementById('detailAuthor').textContent = letter.author || '글쓴이 미상';
+    document.getElementById('detailDate').textContent = letter.date || '';
+    document.getElementById('detailMemo').textContent = letter.memo || '';
+    goTo('screen-detail');
+  }
+
   function openCamera() {
     cameraInput.value = '';
     cameraInput.click();
@@ -343,7 +538,6 @@
     reader.readAsDataURL(file);
   });
 
-  // 정사각으로 중앙 크롭 후, 처리 성능을 위해 적당한 크기로 축소
   function processCapturedImage(img) {
     const naturalW = img.naturalWidth, naturalH = img.naturalHeight;
     const squareSize = Math.min(naturalW, naturalH);
@@ -481,10 +675,21 @@
     document.getElementById('infoPhoto').src = dataURL;
     document.getElementById('inputAuthor').value = '';
     document.getElementById('inputDate').value = '';
+    document.getElementById('inputMemo').value = '';
     goTo('screen-info');
   }
 
   function storeLetter() {
+    const letters = loadLetters();
+    letters.push({
+      id: Date.now(),
+      photo: document.getElementById('infoPhoto').src,
+      author: document.getElementById('inputAuthor').value.trim(),
+      date: document.getElementById('inputDate').value,
+      memo: document.getElementById('inputMemo').value.trim()
+    });
+    saveLetters(letters);
+    renderArchive();
     goTo('screen-archive');
   }
 </script>
