@@ -35,27 +35,26 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #e8e8e8;
+    background: #dcdcdc;
     font-family: 'Pretendard', sans-serif;
   }
 
   .stage {
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     display: flex;
-    align-items: center;
     justify-content: center;
   }
 
   .frame {
     position: relative;
-    width: 390px;
-    height: 844px;
-    max-width: 100vw;
-    max-height: 100vh;
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    height: 100dvh;
     background: #ffffff;
     overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
   }
 
   .screen {
@@ -656,7 +655,7 @@
         </div>
       </div>
       <div id="archiveNotice" class="archive-notice" style="display:none;">
-        이 편지들은 이 기기(브라우저)에만 저장돼요. 앱을 지우거나 브라우저 데이터를 삭제하면 기록도 함께 사라져요.
+        이 글씨들은 이 기기(브라우저)에만 저장돼요. 앱을 지우거나 브라우저 데이터를 삭제하면 기록도 함께 사라져요.
       </div>
       <div id="archiveList" class="archive-list"></div>
       <div id="archiveSelectBar" class="archive-select-bar" style="display:none;">
@@ -673,7 +672,7 @@
       <div class="detail-photo-wrap">
         <img id="detailPhoto" src="" alt="편지 상세 사진" onclick="saveToGallery()" ondragstart="return false">
       </div>
-      <div class="detail-hint">사진을 누르면 사진 라이브러리에 저장돼요</div>
+      <div class="detail-hint">사진을 누르면 저장·공유 방법이 떠요</div>
       <div class="detail-body">
         <div class="detail-author" id="detailAuthor"></div>
         <div class="detail-date" id="detailDate"></div>
@@ -874,7 +873,7 @@
     if (letters.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'archive-empty';
-      empty.textContent = '아직 보관된 편지가 없어요.';
+      empty.textContent = '아직 보관된 글씨가 없어요.';
       list.appendChild(empty);
       return;
     }
@@ -941,7 +940,7 @@
     goTo('screen-detail');
   }
 
-  // 사진을 눌렀을 때 기기 사진 라이브러리에 저장
+  // 사진을 눌렀을 때 '저장 또는 공유' 방법이 뜨도록 함 (바로 다운로드하지 않음)
   async function saveToGallery() {
     const photoSrc = document.getElementById('detailPhoto').src;
     if (!photoSrc) return;
@@ -957,15 +956,12 @@
         return;
       }
     } catch (err) {
-      // 공유 API 실패 시 아래 다운로드 방식으로 대체
+      // 공유 API를 지원하지 않거나 취소한 경우 아래로 대체
     }
 
-    const a = document.createElement('a');
-    a.href = photoSrc;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // 공유 시트를 지원하지 않는 환경: 새 탭에서 이미지를 열어
+    // 길게 눌러 "사진에 저장" / "공유하기" 메뉴를 직접 선택할 수 있게 함
+    window.open(photoSrc, '_blank');
   }
 
   function openCamera() {
